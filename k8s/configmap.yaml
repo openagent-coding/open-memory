@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: open-memory-config
+  labels:
+    app: open-memory
+data:
+  DB_HOST: "postgres"
+  DB_PORT: "5432"
+  DB_NAME: "open_memory"
+  DB_USER: "memory_user"
+  DB_POOL_MIN: "2"
+  DB_POOL_MAX: "10"
+  EMBEDDING_MODEL: "google/embeddinggemma-300m"
+  EMBEDDING_DIM: "256"
+  DUAL_EMBEDDING: "true"
+  CODE_EMBEDDING_MODEL: "nomic-ai/CodeRankEmbed"
+  CODE_EMBEDDING_DIM: "768"
+  SIMILARITY_THRESHOLD: "0.85"
+  ENABLE_GPU: "false"
+  USER_MEMORY_TTL_DAYS: "0"
+  PROJECT_MEMORY_TTL_DAYS: "90"
+  PROJECT_GUIDELINES_TTL_DAYS: "0"
+  AGENT_MEMORY_TTL_DAYS: "30"
+  USER_MEMORY_CAP: "500"
+  PROJECT_MEMORY_CAP: "1000"
+  PROJECT_GUIDELINES_CAP: "500"
+  AGENT_MEMORY_CAP: "500"
+  LOG_LEVEL: "INFO"
+  MCP_TRANSPORT: "streamable-http"
+  MCP_HOST: "0.0.0.0"
+  MCP_PORT: "8080"
+  CLEANUP_INTERVAL_HOURS: "24"

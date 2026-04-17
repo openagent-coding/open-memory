@@ -1,0 +1,32 @@
+[project]
+name = "open-memory"
+version = "0.1.0"
+description = "MCP memory server for AI coding agents with dual-embedding semantic search"
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.11"
+dependencies = [
+    "fastmcp>=2.14.0",
+    "asyncpg>=0.30.0",
+    "pydantic>=2.10.0",
+    "pydantic-settings>=2.6.0",
+    "sentence-transformers>=3.0.0",
+    "pgvector>=0.3.0",
+    "numpy>=1.26.0",
+]
+
+[project.optional-dependencies]
+gpu = ["torch>=2.0"]
+mysql = ["aiomysql>=0.2.0"]
+dev = ["pytest", "pytest-asyncio", "pytest-cov", "ruff"]
+
+[project.scripts]
+open-memory = "src.server:main"
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  labels:
+    app: open-memory
+    component: database
+spec:
+  selector:
+    app: open-memory
+    component: database
+  ports:
+    - port: 5432
+      targetPort: 5432
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: open-memory
+  labels:
+    app: open-memory
+    component: server
+spec:
+  selector:
+    app: open-memory
+    component: server
+  ports:
+    - port: 8080
+      targetPort: 8080
+  type: ClusterIP

@@ -1,0 +1,14 @@
+services:
+  memory-server:
+    build:
+      args:
+        ENABLE_GPU: "true"
+    environment:
+      ENABLE_GPU: "true"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]

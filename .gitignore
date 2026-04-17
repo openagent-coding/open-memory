@@ -1,0 +1,53 @@
+# Logs
+logs
+*.log
+
+# Python built package
+*.egg-info
+dist
+.tox
+
+# db
+*.db
+
+# Env file
+.env
+
+# IDE
+.idea/
+.ijwb/
+*.iml
+.obsidian/
+
+# Merge files
+*.orig
+
+*.pyc
+.DS_Store
+build
+
+.ipynb_checkpoints
+*.egg-info
+
+# Test temporary files
+_artifacts
+
+# Generated Python SDK documentation
+_build
+
+# sed backups
+*.bak
+
+# virtualenv
+.venv/
+venv/
+
+# python sdk package
+*.tar.gz
+
+# Python cache
+__pycache__
+.pytest_cache
+
+# Local claude or other agent files
+.claude/

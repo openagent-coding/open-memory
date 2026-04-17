@@ -1,0 +1,126 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  labels:
+    app: open-memory
+    component: database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: open-memory
+      component: database
+  template:
+    metadata:
+      labels:
+        app: open-memory
+        component: database
+    spec:
+      containers:
+        - name: postgres
+          image: pgvector/pgvector:pg17
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: open-memory-config
+                  key: DB_NAME
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: open-memory-config
+                  key: DB_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: open-memory-secret
+                  key: DB_PASSWORD
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "memory_user", "-d", "open_memory"]
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "memory_user", "-d", "open_memory"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: postgres-data
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: open-memory
+  labels:
+    app: open-memory
+    component: server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: open-memory
+      component: server
+  template:
+    metadata:
+      labels:
+        app: open-memory
+        component: server
+    spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: busybox:1.36
+          command: ['sh', '-c', 'until nc -z postgres 5432; do sleep 2; done']
+      containers:
+        - name: open-memory
+          image: open-memory:latest
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: open-memory-config
+            - secretRef:
+                name: open-memory-secret
+          volumeMounts:
+            - name: model-cache
+              mountPath: /root/.cache/huggingface
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 500m
+              memory: 2Gi
+            limits:
+              cpu: "2"
+              memory: 4Gi
+      volumes:
+        - name: model-cache
+          persistentVolumeClaim:
+            claimName: model-cache

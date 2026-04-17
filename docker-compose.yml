@@ -7,10 +7,11 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/01-init-pgvector.sql:ro
     ports:
       - "${DB_PORT:-5432}:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-memory_user} -d ${DB_NAME:-open_memory}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-memory_user} -d ${DB_NAME:-open_memory} && psql -U ${DB_USER:-memory_user} -d ${DB_NAME:-open_memory} -c 'SELECT 1 FROM pg_extension WHERE extname = $$vector$$' | grep -q 1"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -20,7 +21,7 @@ services:
     build:
       context: .
       args:
-        EMBEDDING_MODEL: ${EMBEDDING_MODEL:-google/embeddinggemma-300m}
+        EMBEDDING_MODEL: ${EMBEDDING_MODEL:-nomic-ai/nomic-embed-text-v1.5}
         ENABLE_GPU: ${ENABLE_GPU:-false}
     depends_on:
       postgres:
@@ -33,7 +34,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-changeme}
       DB_POOL_MIN: ${DB_POOL_MIN:-2}
       DB_POOL_MAX: ${DB_POOL_MAX:-10}
-      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-google/embeddinggemma-300m}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-nomic-ai/nomic-embed-text-v1.5}
       EMBEDDING_DIM: ${EMBEDDING_DIM:-256}
       DUAL_EMBEDDING: ${DUAL_EMBEDDING:-true}
       CODE_EMBEDDING_MODEL: ${CODE_EMBEDDING_MODEL:-nomic-ai/CodeRankEmbed}

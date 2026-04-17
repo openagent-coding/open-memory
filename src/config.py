@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     db_pool_max: int = 10
 
     # Embedding models
-    embedding_model: str = "google/embeddinggemma-300m"
+    embedding_model: str = "nomic-ai/nomic-embed-text-v1.5"
     embedding_dim: int = 256
 
     # Dual embedding (text + code, enabled by default)

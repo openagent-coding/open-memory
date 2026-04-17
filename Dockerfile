@@ -1,6 +1,6 @@
 FROM python:3.13-slim AS builder
 
-ARG EMBEDDING_MODEL=google/embeddinggemma-300m
+ARG EMBEDDING_MODEL=nomic-ai/nomic-embed-text-v1.5
 ARG CODE_EMBEDDING_MODEL=nomic-ai/CodeRankEmbed
 ARG DUAL_EMBEDDING=true
 ARG ENABLE_GPU=false
@@ -37,6 +37,18 @@ print('Code model downloaded')"; \
 # ── Runtime stage ──
 FROM python:3.13-slim AS runtime
 
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends gnupg curl && \
+    echo "deb http://apt.postgresql.org/pub/repos/apt $(. /etc/os-release && echo $VERSION_CODENAME)-pgdg main" \
+      > /etc/apt/sources.list.d/pgdg.list && \
+    curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+      | gpg --dearmor -o /etc/apt/trusted.gpg.d/pgdg.gpg && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+      postgresql-17 \
+      postgresql-17-pgvector && \
+    rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 COPY --from=builder /install /usr/local
@@ -44,6 +56,9 @@ COPY --from=builder /root/.cache/huggingface /root/.cache/huggingface
 
 COPY src/ src/
 COPY pyproject.toml .
+COPY .env.example .env
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
 
 ENV PYTHONUNBUFFERED=1
 ENV MCP_TRANSPORT=stdio
@@ -57,4 +72,4 @@ HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
         true; \
     fi
 
-ENTRYPOINT ["python", "-m", "src.server"]
+ENTRYPOINT ["/docker-entrypoint.sh"]

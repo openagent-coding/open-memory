@@ -66,7 +66,7 @@ Open Memory stores memories in PostgreSQL with [pgvector](https://github.com/pgv
 - **Consolidation** — merge related memories into concise summaries on demand.
 - **TTL** — session-level memories (agent_memory) auto-expire after 30 days.
 
-**Zero LLM calls for retrieval.** Two lightweight embedding models run locally (~500MB combined, no API calls, no cost). EmbeddingGemma-300M handles natural language, CodeRankEmbed-137M handles code. When the agent searches memory, it's a vector similarity query in PostgreSQL — not an LLM round-trip. Fast and free.
+**Zero LLM calls for retrieval.** Two lightweight embedding models run locally (~500MB combined, no API calls, no cost). Nomic Embed Text v1.5 handles natural language, CodeRankEmbed-137M handles code. When the agent searches memory, it's a vector similarity query in PostgreSQL — not an LLM round-trip. Fast and free.
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed diagrams and data flow.
 
@@ -95,7 +95,13 @@ python -m src.server
 
 ### Claude Code
 
-**Option A: stdio (direct process, no Docker needed)**
+**Option A: stdio (Docker, single container)**
+
+Build once, then point Claude Code at it. PostgreSQL + pgvector run inside the container — no external database needed.
+
+```bash
+docker build -t open-memory .
+```
 
 Add to `~/.claude/settings.json`:
 
@@ -103,14 +109,45 @@ Add to `~/.claude/settings.json`:
 {
   "mcpServers": {
     "open-memory": {
-      "command": "python",
-      "args": ["-m", "src.server"],
-      "cwd": "/path/to/open-memory",
-      "env": {
-        "DB_HOST": "localhost",
-        "DB_PASSWORD": "changeme",
-        "MCP_TRANSPORT": "stdio"
-      }
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "open-memory"],
+      "env": {}
+    }
+  }
+}
+```
+
+To override defaults from `.env.example`, pass `-e` flags:
+
+```json
+{
+  "mcpServers": {
+    "open-memory": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "-e", "DB_PASSWORD=secret",
+        "open-memory"
+      ],
+      "env": {}
+    }
+  }
+}
+```
+
+To persist data across container restarts, mount a volume for PostgreSQL:
+
+```json
+{
+  "mcpServers": {
+    "open-memory": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "-v", "open-memory-pgdata:/var/lib/postgresql",
+        "open-memory"
+      ],
+      "env": {}
     }
   }
 }
@@ -161,7 +198,7 @@ All settings via environment variables. See [.env.example](.env.example) for the
 ### Embedding Models
 
 Default: dual models on CPU (~500MB combined):
-- **Text:** EmbeddingGemma-300M @ 256d (Matryoshka) — SOTA for <500M params, 100+ languages
+- **Text:** Nomic Embed Text v1.5 @ 256d (Matryoshka) — 137M params, 8192 token context, 100+ languages
 - **Code:** CodeRankEmbed-137M @ 768d — beats Voyage Code 3 on CodeSearchNet
 
 Swap via env vars:

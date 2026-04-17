@@ -10,7 +10,7 @@
         "DB_NAME": "open_memory",
         "DB_USER": "memory_user",
         "DB_PASSWORD": "changeme",
-        "EMBEDDING_MODEL": "google/embeddinggemma-300m",
+        "EMBEDDING_MODEL": "nomic-ai/nomic-embed-text-v1.5",
         "EMBEDDING_DIM": "256",
         "DUAL_EMBEDDING": "true",
         "CODE_EMBEDDING_MODEL": "nomic-ai/CodeRankEmbed",

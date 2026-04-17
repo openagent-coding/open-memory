@@ -65,7 +65,7 @@ erDiagram
 
 ```mermaid
 flowchart TD
-    A[Agent calls save_memory] --> B[Embed content with text model<br/>EmbeddingGemma-300M]
+    A[Agent calls save_memory] --> B[Embed content with text model<br/>Nomic Embed Text v1.5]
     B --> C{Dual mode + code/mixed content?}
     C -->|Yes| D[Also embed with code model<br/>CodeRankEmbed-137M]
     C -->|No| E[Text embedding only]
@@ -116,7 +116,7 @@ flowchart TD
 flowchart LR
     subgraph "Default: Dual Model"
         D[Content] --> E[Classifier]
-        E -->|all content| F[Text Model<br/>EmbeddingGemma-300M<br/>256d Matryoshka]
+        E -->|all content| F[Text Model<br/>Nomic Embed Text v1.5<br/>256d Matryoshka]
         E -->|code/mixed| G[Code Model<br/>CodeRankEmbed-137M<br/>768d]
         F --> H[embedding column]
         G --> I[code_embedding column]
@@ -128,7 +128,7 @@ flowchart LR
     end
 ```
 
-**Why dual model by default:** Coding agent memory is inherently mixed — natural language preferences alongside code patterns. EmbeddingGemma-300M excels at text, CodeRankEmbed-137M excels at code. The primary model always embeds everything (so search always works), while the code model adds a second embedding for code-heavy content to improve code-specific retrieval. Combined ~500MB, both run on CPU.
+**Why dual model by default:** Coding agent memory is inherently mixed — natural language preferences alongside code patterns. Nomic Embed Text v1.5 excels at text, CodeRankEmbed-137M excels at code. The primary model always embeds everything (so search always works), while the code model adds a second embedding for code-heavy content to improve code-specific retrieval. Combined ~500MB, both run on CPU.
 
 ## Cleanup and Eviction
 
@@ -184,7 +184,7 @@ graph TB
 
 | Variable | Default | Purpose |
 |----------|---------|---------|
-| `EMBEDDING_MODEL` | `google/embeddinggemma-300m` | HuggingFace model for text embeddings |
+| `EMBEDDING_MODEL` | `nomic-ai/nomic-embed-text-v1.5` | HuggingFace model for text embeddings |
 | `EMBEDDING_DIM` | `256` | Output dimension (Matryoshka truncation) |
 | `DUAL_EMBEDDING` | `true` | Dual text+code model mode (disable for single model) |
 | `CODE_EMBEDDING_MODEL` | `nomic-ai/CodeRankEmbed` | Code model (only when dual=true) |

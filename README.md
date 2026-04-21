@@ -159,6 +159,7 @@ To persist data across container restarts, mount a volume for PostgreSQL:
 {
   "mcpServers": {
     "open-memory": {
+      "type": "http",
       "url": "http://localhost:8080/mcp"
     }
   }

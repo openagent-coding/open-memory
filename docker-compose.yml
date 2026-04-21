@@ -11,7 +11,7 @@ services:
     ports:
       - "${DB_PORT:-5432}:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-memory_user} -d ${DB_NAME:-open_memory} && psql -U ${DB_USER:-memory_user} -d ${DB_NAME:-open_memory} -c 'SELECT 1 FROM pg_extension WHERE extname = $$vector$$' | grep -q 1"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-memory_user} -d ${DB_NAME:-open_memory} && psql -U ${DB_USER:-memory_user} -d ${DB_NAME:-open_memory} -tAc \"SELECT 1 FROM pg_extension WHERE extname = 'vector'\" | grep -q 1"]
       interval: 5s
       timeout: 5s
       retries: 5

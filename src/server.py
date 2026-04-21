@@ -7,6 +7,8 @@ from contextlib import asynccontextmanager
 from typing import Any
 
 from fastmcp import FastMCP
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 
 from .config import Settings
 from .database.postgres import PostgresDatabase
@@ -61,6 +63,11 @@ def create_server() -> FastMCP:
         lifespan=lifespan,
     )
     register_tools(server)
+
+    @server.custom_route("/health", methods=["GET"])
+    async def health(request: Request) -> JSONResponse:
+        return JSONResponse({"status": "ok"})
+
     return server
 
 

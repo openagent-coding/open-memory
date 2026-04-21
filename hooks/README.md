@@ -47,6 +47,7 @@ Add to `~/.claude/settings.json` or `.claude/settings.json`:
 {
   "mcpServers": {
     "open-memory": {
+      "type": "http",
       "url": "http://localhost:8080/mcp"
     }
   }

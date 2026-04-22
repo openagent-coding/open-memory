@@ -17,22 +17,19 @@ def main() -> None:
         "CURSOR_PROJECT_DIR", os.getcwd()
     )
     project_name = os.path.basename(project_dir)
-    is_claude_code = bool(os.environ.get("CLAUDE_PROJECT_DIR"))
+    user_id = os.environ.get("USER", "default")
 
-    message = (
-        f"Session ending for project '{project_name}'. "
-        "If you learned important user preferences, project decisions, "
-        "coding patterns, or corrections during this session, "
-        "save them using the open-memory MCP tools: "
-        "save_user_memory, save_project_memory, save_project_guidelines, "
-        "or save_agent_memory."
-    )
-
-    if is_claude_code:
-        json.dump({"systemMessage": message, "suppressOutput": True}, sys.stdout)
+    if os.environ.get("CLAUDE_PROJECT_DIR"):
+        json.dump({"continue": True}, sys.stdout)
     else:
+        message = (
+            f"Session ending for project '{project_name}'. "
+            "Save any important learnings using the open-memory MCP tool "
+            "'save_memory' with the appropriate memory_type. "
+            f"Use entity_key='{project_name}' for project-scoped memories "
+            f"or entity_key='{user_id}' for user-scoped memories."
+        )
         json.dump({"followup_message": message}, sys.stdout)
-
 
 if __name__ == "__main__":
     main()

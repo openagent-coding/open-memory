@@ -61,6 +61,13 @@ except: pass
     echo "## Agent Memory"
     fetch_memory "agent_memory" "${AGENT_TYPE:-default}"
     echo ""
+    echo "## End-of-Session Instructions"
+    echo "  Before ending this session, save any important learnings using the"
+    echo "  open-memory MCP tool 'save_memory' with the appropriate memory_type:"
+    echo "  user_memory, project_memory, project_guidelines, or agent_memory."
+    echo "  Use entity_key='${PROJECT_NAME}' for project-scoped memories"
+    echo "  or entity_key='${USER_ID}' for user-scoped memories."
+    echo ""
     echo "=== End Memory Context ==="
 } >&2
 

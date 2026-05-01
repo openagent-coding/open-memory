@@ -15,7 +15,24 @@ pip install -e .
 python -m src.server
 ```
 
-### 2. Claude Code Integration
+### 2. Install the Skill (recommended)
+
+The open-memory skill provides structured memory management workflows that the hooks
+trigger automatically. Install it for best results.
+
+**Claude Code**: Add to `~/.claude/settings.json` or `.claude/settings.json`:
+
+```json
+{
+  "skills": [
+    "/path/to/open-memory/skills/open-memory"
+  ]
+}
+```
+
+Without the skill installed, hooks still work but provide less structured guidance.
+
+### 3. Claude Code Integration
 
 **Option A: MCP via stdio (direct process)**
 
@@ -81,7 +98,7 @@ Add to `~/.claude/settings.json` or `.claude/settings.json`:
 }
 ```
 
-### 3. Cursor Integration
+### 4. Cursor Integration
 
 **MCP Server**: Add in Cursor Settings > MCP:
 
@@ -122,6 +139,18 @@ export OPEN_MEMORY_URL=http://localhost:8080
 
 | Hook | Event | Purpose |
 |------|-------|---------|
-| `session_start.sh` | SessionStart | Loads user/project/guidelines memory into agent context |
-| `session_stop.py` | Stop | Reminds agent to save important learnings |
+| `session_start.sh` | SessionStart | Loads project guidelines and user preferences, instructs agent for task-aware context retrieval |
+| `session_stop.py` | Stop | Triggers the open-memory skill's Session End Workflow for structured learning persistence |
 | `post_tool_use.py` | PostToolUse | Tracks tool usage patterns |
+
+## How Hooks and Skill Work Together
+
+1. **Session start**: `session_start.sh` fetches baseline context (project guidelines +
+   user preferences) via HTTP and injects instructions for the agent to do task-aware
+   `search_memory` calls using the MCP tools.
+
+2. **Mid-session**: The skill guides the agent on when and how to save memories as
+   it encounters valuable knowledge (corrections, preferences, conventions).
+
+3. **Session end**: `session_stop.py` triggers the skill's Session End Workflow, which
+   reviews the conversation for learnings and saves them with proper categorization.
